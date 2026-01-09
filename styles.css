@@ -73,6 +73,9 @@ input[type="radio"] {
   --glass-bg-2: rgba(47, 159, 197, 0.08);
   --glass-border: rgba(47, 159, 197, 0.22);
 }
+*, *::before, *::after {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
