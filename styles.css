@@ -202,3 +202,8 @@ header, .tabs {
   outline-offset: 2px;
 }
 
+/* Space between header and the next section (detail page needs this) */
+header + * {
+  margin-top: 12px;
+}
+
