@@ -134,6 +134,25 @@ header h1 {
   }
 }
 
+/* --- Glass panels (header + tabs): embossed inside, no outer glow --- */
+header, .tabs {
+  /* remove teal glow */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    inset 0 -6px 16px rgba(0,0,0,0.18);
+
+  /* slightly stronger rim so the edge reads */
+  border-color: rgba(10, 70, 95, 0.35);
+
+  /* optional: subtle internal gradient for glass thickness */
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.20) 0%,
+      rgba(255,255,255,0.08) 40%,
+      rgba(0,0,0,0.06) 100%),
+    var(--glass-bg);
+}
+
 /* --- Teal glass buttons (embossed edges, no outer glow) --- */
 .button, .btn {
   border-radius: 12px;
