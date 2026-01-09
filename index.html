@@ -18,7 +18,7 @@
 		<div id="notice"></div>
     </header>
     <div class="tabs">
-      <button class="tab active" data-filter="All">All</button>
+      <button class="tab active" data-filter="Current">Current</button>
       <button class="tab" data-filter="1-To Do">To Do</button>
       <button class="tab" data-filter="2-In Progress">In Progress</button>
       <button class="tab" data-filter="3-Done">Done</button>
@@ -41,7 +41,7 @@ try {
   }
 }
 
-let rows = [], filter = "All";
+let rows = [], filter = "Current";
 async function fetchRequests() {
   const { data, error } = await sb.from(TABLE).select('*').order('status', { ascending: true }).order('create_at', { ascending: false });
   if (error) { document.getElementById('notice').innerHTML = '<div class="notice">Error: ' + error.message + '</div>'; return; }
@@ -51,9 +51,14 @@ function render() {
   const el = document.getElementById('list');
   const q = document.getElementById('q').value.trim().toLowerCase();
   let shown = rows;
-  if (filter !== "All") shown = shown.filter(r => (r.status || "") === filter);
+  if (filter === "Current") {
+    const CURRENT = new Set(["1-To Do", "2-In Progress"]);
+    shown = shown.filter(r => CURRENT.has((r.status || "")));
+  } else if (filter !== "All") {
+    shown = shown.filter(r => (r.status || "") === filter);
+  }
   if (q) shown = shown.filter(r => (r.name || "").toLowerCase().includes(q) || (r.need || "").toLowerCase().includes(q));
-  if (!shown.length) { el.innerHTML = '<p class="notice">No matching requests.</p>'; document.getElementById('meta').textContent = `Loaded ${rows.length} total`; return; }
+  if (!shown.length) { el.innerHTML = '<p class="notice">No matching requests.</p>'; document.getElementById('meta').textContent = (filter === "Current" ? `Loaded ${rows.length} total (showing current)` : `Loaded ${rows.length} total`); return; }
   el.innerHTML = shown.map(r => `<div class="card">
       <div class="badge-row"><span class="status-badge">${r.status || ""}</span><small>${r.create_at ? new Date(r.create_at).toLocaleString() : ""}</small></div>
       <p>${(r.need || "").replace(/</g,"&lt;")}</p>
@@ -62,7 +67,7 @@ function render() {
       ${r.notes ? `<p><strong>Notes:</strong> ${(r.notes || "").replace(/</g,"&lt;")}</p>` : ""}
       <a class="btn secondary" href="./detail.html?id=${encodeURIComponent(r.requestID)}">Open</a>
     </div>`).join("");
-  document.getElementById('meta').textContent = `Showing ${shown.length} of ${rows.length} records`;
+  document.getElementById('meta').textContent = (filter === "Current" ? `Showing ${shown.length} current of ${rows.length} records` : `Showing ${shown.length} of ${rows.length} records`);
 }
 document.querySelectorAll('.tab').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(b => b.classList.remove('active')); btn.classList.add('active'); filter = btn.getAttribute('data-filter'); render(); }); });
 document.getElementById('q').addEventListener('input', render);

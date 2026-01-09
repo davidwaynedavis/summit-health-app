@@ -63,3 +63,60 @@ input[type="radio"] {
     margin-right: 0;
   }
 }
+
+
+/* --- Calm + modern (brand-tinted glass) --- */
+:root {
+  --brand: #2F9FC5;
+  --ink: #111827;
+  --glass-bg: rgba(47, 159, 197, 0.14);
+  --glass-bg-2: rgba(47, 159, 197, 0.08);
+  --glass-border: rgba(47, 159, 197, 0.22);
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--glass-bg-2) 0px, #ffffff 260px);
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: 0 8px 24px rgba(47, 159, 197, 0.18);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  letter-spacing: 0.2px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px;
+  margin: 12px 0;
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+}
+
+.search input {
+  border-radius: 12px;
+}
+
+@supports ((-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))) {
+  header, .tabs {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+}
