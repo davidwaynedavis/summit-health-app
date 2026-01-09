@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Requests</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="./supabaseClient.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Requests</h1>
+      <div class="controls">
+        <a class="btn" href="./add.html">Add Request</a>
+      </div>
+		<div id="notice"></div>
+    </header>
+    <div class="tabs">
+      <button class="tab active" data-filter="All">All</button>
+      <button class="tab" data-filter="1-To Do">To Do</button>
+      <button class="tab" data-filter="2-In Progress">In Progress</button>
+      <button class="tab" data-filter="3-Done">Done</button>
+    </div>
+    <div class="search">
+      <input id="q" type="text" placeholder="Search name or need…" />
+    </div>
+    <div id="list"></div>
+    <div class="footer"><small class="mono" id="meta"></small></div>
+  </div>
+<script>
+let sb;
+try {
+  sb = createClient();
+} catch (e) {
+  const notice = document.getElementById('notice');
+  if (notice) {
+    notice.innerHTML =
+      '<div class="notice">Supabase init error: ' + e.message + '</div>';
+  }
+}
+
+let rows = [], filter = "All";
+async function fetchRequests() {
+  const { data, error } = await sb.from(TABLE).select('*').order('status', { ascending: true }).order('create_at', { ascending: false });
+  if (error) { document.getElementById('notice').innerHTML = '<div class="notice">Error: ' + error.message + '</div>'; return; }
+  rows = data || []; render();
+}
+function render() {
+  const el = document.getElementById('list');
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  let shown = rows;
+  if (filter !== "All") shown = shown.filter(r => (r.status || "") === filter);
+  if (q) shown = shown.filter(r => (r.name || "").toLowerCase().includes(q) || (r.need || "").toLowerCase().includes(q));
+  if (!shown.length) { el.innerHTML = '<p class="notice">No matching requests.</p>'; document.getElementById('meta').textContent = `Loaded ${rows.length} total`; return; }
+  el.innerHTML = shown.map(r => `<div class="card">
+      <div class="badge-row"><span class="status-badge">${r.status || ""}</span><small>${r.create_at ? new Date(r.create_at).toLocaleString() : ""}</small></div>
+      <p>${(r.need || "").replace(/</g,"&lt;")}</p>
+      <p><strong>Name:</strong> ${(r.name || "").replace(/</g,"&lt;")}</p>
+      ${r.phone ? `<p><strong>Phone:</strong> ${(r.phone || "").replace(/</g,"&lt;")}</p>` : ""}
+      ${r.notes ? `<p><strong>Notes:</strong> ${(r.notes || "").replace(/</g,"&lt;")}</p>` : ""}
+      <a class="btn secondary" href="./detail.html?id=${encodeURIComponent(r.requestID)}">Open</a>
+    </div>`).join("");
+  document.getElementById('meta').textContent = `Showing ${shown.length} of ${rows.length} records`;
+}
+document.querySelectorAll('.tab').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(b => b.classList.remove('active')); btn.classList.add('active'); filter = btn.getAttribute('data-filter'); render(); }); });
+document.getElementById('q').addEventListener('input', render);
+if (sb) fetchRequests();
+</script>
+</body></html>

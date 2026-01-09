@@ -1,0 +1,65 @@
+button, .btn {
+  border: 1px solid #111827;
+  background: #111827;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* Tabs */
+.tab {
+  background: #fff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.tab.active { border-color: #111827; font-weight: bold; }
+
+/* Layout */
+.container { max-width: 600px; margin: auto; padding: 1rem; font-family: sans-serif; }
+.card { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; background: #fff; }
+.notice { background: #fef3c7; padding: .5rem; border: 1px solid #fcd34d; margin: .5rem 0; border-radius: 6px; }
+.status-badge { background: #eee; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+.badge-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+
+/* Inputs: only text + textarea should be full width */
+input[type="text"], textarea {
+  width: 100%;
+  padding: .5rem;
+  margin: .3rem 0 .8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Radios should NOT stretch */
+input[type="radio"] {
+  width: auto;
+  margin: 0;
+  display: inline-block;
+}
+
+/* Status radio buttons */
+.status-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+/* On small screens, stack radios vertically */
+@media (max-width: 600px) {
+  .status-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .status-group label {
+    margin-right: 0;
+  }
+}

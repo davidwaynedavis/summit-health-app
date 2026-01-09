@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Add Request</title>
+<link rel="stylesheet" href="./styles.css" />
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="./supabaseClient.js"></script>
+</head>
+<body>
+<div class="container">
+<header><h1>Add Request</h1><div class="controls"><a class="btn secondary" href="./index.html">Back</a></div></header>
+<form id="form">
+<label for="name">Name</label><input id="name" type="text" required />
+<label for="phone">Phone</label><input id="phone" type="text" />
+<label for="need">Need</label><textarea id="need" required></textarea>
+<div class="notice">Status will be set to <strong>1-To Do</strong>.</div>
+<button type="submit">Submit</button>
+</form>
+<div id="msg" class="footer"></div>
+</div>
+<script>
+let sb; try { sb = createClient(); } catch (e) { document.getElementById('msg').textContent = "Supabase init error: " + e.message; }
+document.getElementById('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const need = document.getElementById('need').value.trim();
+  const record = { name, phone, need, status: "1-To Do" };
+  const { data, error } = await sb.from(TABLE).insert(record).select().single();
+  const msg = document.getElementById('msg');
+  if (error) { msg.textContent = "Error: " + error.message; return; }
+  msg.innerHTML = `Request submitted. <a href="./detail.html?id=${encodeURIComponent(data.requestID)}">Open details</a>`;
+  setTimeout(() => location.href = './index.html', 900);
+});
+</script>
+</body></html>

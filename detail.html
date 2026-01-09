@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Request Detail</title>
+<link rel="stylesheet" href="./styles.css" />
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="./supabaseClient.js"></script>
+</head>
+<body>
+<div class="container">
+<header><h1>Request Detail</h1><div class="controls"><a class="btn secondary" href="./index.html">Back</a></div></header>
+<div id="content" class="card"><div id="loading">Loading...</div></div>
+<div id="msg" class="footer"></div>
+</div>
+<script>
+let sb; try { sb = createClient(); } catch (e) { document.getElementById('msg').textContent = "Supabase init error: " + e.message; }
+const qs = new URLSearchParams(location.search); let requestID = qs.get('id');
+function show(where, text) { document.getElementById('msg').textContent = where + ": " + text; }
+function renderDetail(r) {
+  const content = document.getElementById('content');
+  if (!r) { content.innerHTML = '<div class="notice">Not found.</div>'; return; }
+  const STATUS_ORDER = ["1-To Do", "2-In Progress", "3-Done"];
+  const statusVal = r.status || "";
+  const radios = `<div class="status-group">` + STATUS_ORDER
+  .map(s => `
+    <label>
+      <input type="radio" name="status" value="${s}" ${statusVal === s ? "checked" : ""}>
+      <span>${s}</span>
+    </label>
+  `)
+  .join("") + `</div>`;
+
+  content.innerHTML = `<div class="badge-row"><span class="status-badge">${statusVal}</span><small>${r.create_at ? new Date(r.create_at).toLocaleString() : ""}</small></div>
+    <p><strong>Name:</strong> ${r.name ?? ""}</p>
+    <p><strong>Need:</strong> ${r.need ?? ""}</p>
+    <label for="phone">Phone</label><input id="phone" type="text" value="${r.phone ?? ""}" />
+    <label for="notes">Notes</label><textarea id="notes">${r.notes ?? ""}</textarea>
+    <label>Status</label><div>${radios}</div>
+    <div style="margin-top: 16px;"><button id="saveBtn">Save Updates</button></div>`;
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    const phone = document.getElementById('phone').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+    const status = Array.from(document.querySelectorAll('input[name="status"]')).find(r => r.checked)?.value || statusVal;
+    const update = { phone, notes, status };
+    const { error } = await sb.from(TABLE).update(update).eq('requestID', requestID);
+    if (error) { show("update error", error.message); return; }
+    show("status", "Saved."); setTimeout(() => location.reload(), 500);
+  });
+}
+async function load() {
+  if (!requestID) { show("load error", "Missing ?id param"); return; }
+  if (/^\d+$/.test(requestID)) requestID = Number(requestID);
+  const { data, error } = await sb.from(TABLE).select('*').eq('requestID', requestID).maybeSingle();
+  if (error) { show("load error", error.message); return; }
+  if (!data) { show("load", "Record not found"); document.getElementById('content').innerHTML = '<div class="notice">Not found.</div>'; return; }
+  renderDetail(data);
+}
+if (sb) load();
+</script>
+</body></html>
